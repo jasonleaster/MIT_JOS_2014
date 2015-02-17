@@ -102,7 +102,7 @@ ULDFLAGS := -T user/user.ld
 GCC_LIB := $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
 
 # Lists that the */Makefrag makefile fragments will add to
-OBJDIRS :=
+OBJDIRS := 
 
 # Make sure that 'all' is the first target
 all:
