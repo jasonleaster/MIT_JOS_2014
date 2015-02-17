@@ -44,7 +44,7 @@
 	TRAPHANDLER_NOEC(divide_error, T_DIVIDE)				# divide error
 	TRAPHANDLER_NOEC(debug, T_DEBUG)						# debug exception
 	TRAPHANDLER_NOEC(nmi, T_NMI)							# non-maskable interrupt
-	TRAPHANDLER_NOEC(breakpoint, T_BRKPT)					# breakpoint
+    TRAPHANDLER_NOEC(breakpoint, T_BRKPT)					# breakpoint
 	TRAPHANDLER_NOEC(overflow, T_OFLOW)						# overflow
 	TRAPHANDLER_NOEC(bounds, T_BOUND)						# bounds check
 	TRAPHANDLER_NOEC(invalid_op, T_ILLOP)					# illegal opcode
@@ -56,7 +56,7 @@
 	TRAPHANDLER(stack_segment, T_STACK)						# stack exception
 	TRAPHANDLER(general_protection, T_GPFLT)				# general protection fault
 	TRAPHANDLER(page_fault, T_PGFLT)						# page fault
-//	TRAPHANDLER_NOEC(reserved, T_RES)						# reserved
+	TRAPHANDLER_NOEC(reserved, T_RES)						# reserved
 	TRAPHANDLER_NOEC(float_point_error, T_FPERR)			# floating point error
 	TRAPHANDLER(alignment_check, T_ALIGN)					# alignment check
 	TRAPHANDLER_NOEC(machine_check, T_MCHK)					# machine check
@@ -318,7 +318,7 @@ idt_entries:
   .long stack_segment
   .long general_protection
   .long page_fault
-  //.long reserved
+  .long reserved
   .long float_point_error
   .long alignment_check
   .long machine_check
