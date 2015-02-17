@@ -214,6 +214,7 @@ mem_init(void)
                 ROUNDUP((sizeof(struct Env) * NENV) , PGSIZE),
                 PADDR(envs),
                 (PTE_W | PTE_P));
+
 	//////////////////////////////////////////////////////////////////////
 	// Use the physical memory that 'bootstack' refers to as the kernel
 	// stack.  The kernel stack grows down from virtual address KSTACKTOP.
@@ -299,6 +300,8 @@ mem_init_mp(void)
 	//
 	// LAB 4: Your code here:
 
+//boot_map_region(kern_pgdir, KSTACKTOP - i * (KSTKSIZE + KSTKGAP), ROUNDUP(KSTKSIZE, PGSIZE), percpu_kstacks[i], (PTE_W) | (PTE_P));
+
 }
 
 // --------------------------------------------------------------
@@ -319,6 +322,8 @@ page_init(void)
 	// LAB 4:
 	// Change your code to mark the physical page at MPENTRY_PADDR
 	// as in use
+
+    pages[MPENTRY_PADDR/PGSIZE].pp_ref = 1;
 
 	// The example code here marks all physical pages as free.
 	// However this is not truly the case.  What memory is free?
@@ -697,6 +702,13 @@ mmio_map_region(physaddr_t pa, size_t size)
 	// Hint: The staff solution uses boot_map_region.
 	//
 	// Your code here:
+
+/*    boot_map_region(kern_pgdir,
+                    base,
+                    ROUNDUP(size, PGSIZE),
+                    pa,
+                    (PTE_U | PTE_P | PTE_PCD | PTE_PWT));
+*/
 	panic("mmio_map_region not implemented");
 }
 
