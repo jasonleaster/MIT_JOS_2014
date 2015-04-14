@@ -143,8 +143,6 @@ mem_init(void)
 	// Permissions: kernel R, user R
 	kern_pgdir[PDX(UVPT)] = PADDR(kern_pgdir) | PTE_U | PTE_P;
 
-	//kern_pgdir[PDX(VPT)] = PADDR(kern_pgdir) | PTE_W | PTE_P;
-
 	//////////////////////////////////////////////////////////////////////
 	// Allocate an array of npages 'struct PageInfo's and store it in 'pages'.
 	// The kernel uses this array to keep track of physical pages: for
@@ -300,7 +298,18 @@ mem_init_mp(void)
 	//
 	// LAB 4: Your code here:
 
-//boot_map_region(kern_pgdir, KSTACKTOP - i * (KSTKSIZE + KSTKGAP), ROUNDUP(KSTKSIZE, PGSIZE), percpu_kstacks[i], (PTE_W) | (PTE_P));
+    int i = 0;
+    uintptr_t kstacktop_i;
+
+    for (i = 0; i < NCPU; i++)
+    {
+        kstacktop_i = KSTACKTOP - i * (KSTKSIZE + KSTKGAP);
+        boot_map_region(kern_pgdir,
+                    kstacktop_i - KSTKSIZE,
+                    ROUNDUP(KSTKSIZE, PGSIZE),
+                    PADDR(&percpu_kstacks[i]),
+                    PTE_W);
+    }
 
 }
 
@@ -322,8 +331,6 @@ page_init(void)
 	// LAB 4:
 	// Change your code to mark the physical page at MPENTRY_PADDR
 	// as in use
-
-    pages[MPENTRY_PADDR/PGSIZE].pp_ref = 1;
 
 	// The example code here marks all physical pages as free.
 	// However this is not truly the case.  What memory is free?
@@ -353,6 +360,11 @@ page_init(void)
             pages[0].pp_ref = 1;
             pages[0].pp_link = NULL;
             continue;
+        }
+        else if(i == MPENTRY_PADDR/PGSIZE)
+        {
+            pages[i].pp_ref = 1;
+            pages[i].pp_link = NULL;
         }
         else if(i < npages_basemem)
         {
@@ -703,13 +715,23 @@ mmio_map_region(physaddr_t pa, size_t size)
 	//
 	// Your code here:
 
-/*    boot_map_region(kern_pgdir,
+    void * ret = (void *)base;
+    size = ROUNDUP(size, PGSIZE);
+    if (base + size > MMIOLIM || base + size < base)
+    {
+        panic("mmio_map_region : reservation overflow\n");
+    }
+
+    boot_map_region(kern_pgdir,
                     base,
-                    ROUNDUP(size, PGSIZE),
+                    size,
                     pa,
-                    (PTE_U | PTE_P | PTE_PCD | PTE_PWT));
-*/
-	panic("mmio_map_region not implemented");
+                    (PTE_W | PTE_PCD | PTE_PWT));
+                    // never try to give a PTE_U
+    base += size;
+
+    return ret;
+	//panic("mmio_map_region not implemented");
 }
 
 static uintptr_t user_mem_check_addr;
