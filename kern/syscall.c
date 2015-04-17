@@ -132,7 +132,6 @@ sys_env_set_status(envid_t envid, int status)
 	//panic("sys_env_set_status not implemented");
 }
 
-<<<<<<< HEAD
 // Set envid's trap frame to 'tf'.
 // tf is modified to make sure that user environments always run at code
 // protection level 3 (CPL 3) with interrupts enabled.
@@ -148,8 +147,6 @@ sys_env_set_trapframe(envid_t envid, struct Trapframe *tf)
 	// address!
 	panic("sys_env_set_trapframe not implemented");
 }
-=======
->>>>>>> lab4
 
 // Set the page fault upcall for 'envid' by modifying the corresponding struct
 // Env's 'env_pgfault_upcall' field.  When 'envid' causes a page fault, the
@@ -540,18 +537,11 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
         case SYS_ipc_recv:
              return sys_ipc_recv((void *)a1);
 
-<<<<<<< HEAD
-	switch (syscallno) {
-	default:
-		return -E_INVAL;
-=======
         default:
-
             cprintf("Error syscall(%u)\n", syscallno);
             panic("syscall not impelmented\n");
 
-            return -E_NO_SYS;
->>>>>>> lab4
+            return -E_INVAL;
 	}
 
     return r;
