@@ -48,6 +48,21 @@ bc_pgfault(struct UTrapframe *utf)
 	// the disk.
 	//
 	// LAB 5: you code here:
+    if (sys_page_alloc(envid, addr, PTE_SYSCALL) < 0)
+    {
+        panic("bg_pgfault:can't allocate new page for disk block\n");
+    }
+
+    if (ide_read(blockno * BLKSECTS, addr, BLKSECTS) < 0)
+    {
+        panic("bg_pgfault: failed to read disk block\n");
+    }
+
+    if (sys_page_map(envid, addr, envid, addr, PTE_SYSCALL) < 0)
+    {
+        panic("bg_pgfault: failed to mark disk page as non dirth\n");
+    }
+
 
 	// Clear the dirty bit for the disk block page since we just read the
 	// block from disk
