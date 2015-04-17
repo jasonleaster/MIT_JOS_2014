@@ -90,13 +90,6 @@ trap_init(void)
         }
     }
 
-//    ts.ts_esp0 = KSTACKTOP;
-//    ts.ts_ss0  = GD_KD;
-//
-//    gdt[GD_TSS0 >> 3] = SEG16(STS_T32A, (uint32_t) (&ts), sizeof(struct Taskstate), 0);
-//    gdt[GD_TSS0 >> 3].sd_s = 0;
-//
-//    ltr(GD_TSS0);
 	// Per-CPU setup 
 	trap_init_percpu();
 }
@@ -132,8 +125,8 @@ trap_init_percpu(void)
 
 	// Setup a TSS so that we get the right stack
 	// when we trap to the kernel.
-//	ts.ts_esp0 = KSTACKTOP;
-//	ts.ts_ss0 = GD_KD;
+	//ts.ts_esp0 = KSTACKTOP;
+	//ts.ts_ss0 = GD_KD;
 
 	// Initialize the TSS slot of the gdt.
 	gdt[(GD_TSS0 >> 3) + cpunum()] = SEG16(STS_T32A, (uint32_t) (&thiscpu->cpu_ts), sizeof(struct Taskstate), 0);
@@ -229,13 +222,6 @@ trap_dispatch(struct Trapframe *tf)
                             tf->tf_regs.reg_esi);
                 return ;
                 
-    }
-
-    if (tf->tf_trapno == IRQ_OFFSET + IRQ_SPURIOUS)
-    {
-        cprintf("Spurious interript on irq 7\n");
-        print_trapframe(tf);
-        return ;
     }
 
     if(tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER)
@@ -380,21 +366,15 @@ page_fault_handler(struct Trapframe *tf)
     // Figure out top where trapframe should end, leaving 1 word scratch space
     if (tf->tf_esp >= UXSTACKTOP - PGSIZE && tf->tf_esp <= UXSTACKTOP - 1)
     {
-        exstack = tf->tf_esp - 4;
+        exstack = (tf->tf_esp - sizeof(struct UTrapframe) - 4);
     }
     else
     {
-        exstack = UXSTACKTOP;
-    }
-
-    // Check if enough space to copy trapframe
-    if((exstack - sizeof(struct UTrapframe)) < UXSTACKTOP - PGSIZE)
-    {
-        goto destroy;
+        exstack = (UXSTACKTOP - sizeof(struct UTrapframe));
     }
 
     // set up UTrapframe on exception stack
-    utf = (struct UTrapframe *)(exstack - sizeof(struct UTrapframe));
+    utf = (struct UTrapframe *)(exstack);
 
     utf->utf_fault_va = fault_va;
     utf->utf_err    = tf->tf_err;
@@ -403,6 +383,7 @@ page_fault_handler(struct Trapframe *tf)
     utf->utf_eflags = tf->tf_eflags;
     utf->utf_esp    = tf->tf_esp;
 
+    user_mem_assert(curenv, (void *)exstack, sizeof(struct UTrapframe), PTE_P | PTE_W | PTE_U);
     // fix trapframe to return to user handler
     tf->tf_esp = (uintptr_t) utf;
     tf->tf_eip = (uintptr_t) curenv->env_pgfault_upcall;

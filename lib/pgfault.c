@@ -36,7 +36,7 @@ set_pgfault_handler(void (*handler)(struct UTrapframe *utf))
             panic("Unable to allocate memory for pgfault expected\n");
         }
 
-        sys_env_set_pgfault_upcall(thisenv->env_id, _pgfault_handler);
+        sys_env_set_pgfault_upcall(thisenv->env_id, _pgfault_upcall);
 
 		//panic("set_pgfault_handler not implemented");
 	}

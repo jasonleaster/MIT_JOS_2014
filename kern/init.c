@@ -74,7 +74,14 @@ i386_init(void)
     ENV_CREATE(user_yield, ENV_TYPE_USER);
     */
 
+    /*
+     ** This is also for lab4 Part 1
+     
     ENV_CREATE(user_dumbfork, ENV_TYPE_USER);
+    */
+
+
+    ENV_CREATE(user_faultread, ENV_TYPE_USER);
 #endif // TEST*
 
 	// Schedule and run the first user environment!
