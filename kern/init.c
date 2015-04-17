@@ -56,7 +56,6 @@ i386_init(void)
 	// Starting non-boot CPUs
 	boot_aps();
 
-
 #if defined(TEST)
 	// Don't touch -- used by grading script!
 	ENV_CREATE(TEST, ENV_TYPE_USER);
@@ -67,7 +66,6 @@ i386_init(void)
     /*
      ** This is used for testing lab4 Part 1
      
-
     ENV_CREATE(user_idle, ENV_TYPE_USER);
     ENV_CREATE(user_yield, ENV_TYPE_USER);
     ENV_CREATE(user_yield, ENV_TYPE_USER);
@@ -79,7 +77,6 @@ i386_init(void)
      
     ENV_CREATE(user_dumbfork, ENV_TYPE_USER);
     */
-
 
     ENV_CREATE(user_faultread, ENV_TYPE_USER);
 #endif // TEST*
