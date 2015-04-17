@@ -114,7 +114,7 @@ monitor(struct Trapframe *tf)
 {
 	char *buf;
 
-	cprintf("Welcome to the JOS kernel monitor!\n");
+	cprintf("Welcome to %Cc the JOS kernel monitor!\n", COLOR_GRN, 'H');
 	cprintf("Type 'help' for a list of commands.\n");
 
 	if (tf != NULL)
