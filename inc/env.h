@@ -41,12 +41,7 @@ enum {
 // Special environment types
 enum EnvType {
 	ENV_TYPE_USER = 0,
-<<<<<<< HEAD
 	ENV_TYPE_FS,		// File system server
-=======
-    ENV_TYPE_IDLE,
-    ENV_TYPE_YIELD
->>>>>>> lab4
 };
 
 struct Env {
