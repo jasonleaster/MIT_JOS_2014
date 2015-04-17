@@ -48,6 +48,10 @@ bc_pgfault(struct UTrapframe *utf)
 	// the disk.
 	//
 	// LAB 5: you code here:
+
+    envid_t envid = thisenv->env_id;
+    void *blkaddr = ROUNDDOWN(addr, PGSIZE);
+
     if (sys_page_alloc(envid, addr, PTE_SYSCALL) < 0)
     {
         panic("bg_pgfault:can't allocate new page for disk block\n");
@@ -92,7 +96,26 @@ flush_block(void *addr)
 		panic("flush_block of bad va %08x", addr);
 
 	// LAB 5: Your code here.
-	panic("flush_block not implemented");
+
+    void *blkaddr = ROUNDDOWN(addr, PGSIZE);
+    envid_t envid - thisenv->env_id;
+
+    if (!va_is_mapped(addr) || !va_is_dirty(addr))
+    {
+        return ;
+    }
+
+    if (ide_write(blockno * BLKSECTS, blkaddr, BLKSECTS) < 0)
+    {
+        panic("flush_block: failed to write disk block\n");
+    }
+
+    if(sys_page_map(envid, blkaddr, envid, blkaddr, PTE_SYSCALL) < 0)
+    {
+        panic("flush_block: failed to mark disk page as non dirty\n");
+    }
+
+	//panic("flush_block not implemented");
 }
 
 // Test that the block cache works, by smashing the superblock and
