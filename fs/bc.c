@@ -52,17 +52,17 @@ bc_pgfault(struct UTrapframe *utf)
     envid_t envid = thisenv->env_id;
     void *blkaddr = ROUNDDOWN(addr, PGSIZE);
 
-    if (sys_page_alloc(envid, addr, PTE_SYSCALL) < 0)
+    if (sys_page_alloc(envid, blkaddr, PTE_SYSCALL) < 0)
     {
         panic("bg_pgfault:can't allocate new page for disk block\n");
     }
 
-    if (ide_read(blockno * BLKSECTS, addr, BLKSECTS) < 0)
+    if (ide_read(blockno * BLKSECTS, blkaddr, BLKSECTS) < 0)
     {
         panic("bg_pgfault: failed to read disk block\n");
     }
 
-    if (sys_page_map(envid, addr, envid, addr, PTE_SYSCALL) < 0)
+    if (sys_page_map(envid, blkaddr, envid, blkaddr, PTE_SYSCALL) < 0)
     {
         panic("bg_pgfault: failed to mark disk page as non dirth\n");
     }
@@ -98,7 +98,7 @@ flush_block(void *addr)
 	// LAB 5: Your code here.
 
     void *blkaddr = ROUNDDOWN(addr, PGSIZE);
-    envid_t envid - thisenv->env_id;
+    envid_t envid = thisenv->env_id;
 
     if (!va_is_mapped(addr) || !va_is_dirty(addr))
     {
