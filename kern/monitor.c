@@ -24,6 +24,10 @@ struct Command {
 static struct Command commands[] = {
 	{ "help", "Display this list of commands", mon_help },
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
+    { "alloc_page", "Display the address of allocated page", mon_alloc_page},
+    { "page_status", "Display the status of the page", mon_page_status},
+    { "free_page", "Free the page, successfully or not", mon_free_page},
+    { "backtrace", "Backtrace the function call", mon_backtrace},
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -53,6 +57,75 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 	cprintf("Kernel executable memory footprint: %dKB\n",
 		ROUNDUP(end - entry, 1024) / 1024);
 	return 0;
+}
+
+
+int mon_alloc_page(int argc, char **argv, struct Trapframe *tf)
+{
+    struct PageInfo *pp;
+    if(page_alloc(&pp) == 0)
+    {
+        cprintf("    0x%x\n", page2pa(pp));
+        pp->pp_ref++;
+    }
+    else
+    {
+        cprintf("    Page allocation failed\n");
+    }
+
+    return 0;
+}
+
+int mon_page_status(int argc, char **argv, struct Trapframe *tf)
+{
+    if( argc != 2)
+    {
+        cprintf("Usage: page status [ADDR]\n");
+        cprintf("    Address must be aligned in 4KB\n");
+        return 0;
+    }
+
+    uint32_t pa = strtol(argv[1], 0, 0);
+
+    struct PageInfo *pp = pa2page(pa);
+
+    if(pp->pp_ref > 0)
+    {
+        cprintf("    Allocated\n");
+    }
+    else
+    {
+        cprintf("    free\n");
+    }
+
+    return 0;
+}
+
+int mon_free_page(int argc, char **argv, struct Trapframe *tf)
+{
+    if(argc != 2)
+    {
+        cprintf("Usage: free page [ADDR]\n");
+        cprintf("   Address must be aligned in 4KB\n");
+        cprintf("    Please make sure that the page is currently mounted 1 time\n");
+
+        return 0;
+    }
+
+    uint32_t pa = strtol(argv[1], 0, 0);
+    struct PageInfo *pp = pa2page(pa);
+
+    if(pp->pp_ref == 1)
+    {
+        page_decref(pp);
+        cprintf("    Page freed successfully!\n");
+    }
+    else
+    {
+        cprintf("   failed\n");
+    }
+
+    return 0;
 }
 
 unsigned int read_eip()
