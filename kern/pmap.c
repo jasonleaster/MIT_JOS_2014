@@ -149,6 +149,7 @@ mem_init(void)
 	// Your code goes here:
 
     pages = (struct PageInfo*)boot_alloc(npages * sizeof(struct PageInfo));
+	memset(pages, 0, npages * sizeof(struct PageInfo));
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
@@ -282,12 +283,14 @@ page_init(void)
         }
         else if(i < npages_basemem)
         {
+            // used for base memory
             pages[i].pp_ref = 0;
             pages[i].pp_link = page_free_list;
             page_free_list = &pages[i];
         }
         else if(i <= (EXTPHYSMEM/PGSIZE) || i < (((uint32_t)boot_alloc(0) - KERNBASE) >> PGSHIFT))
         {
+            //used for IO memory
             pages[i].pp_ref++;
             pages[i].pp_link = NULL;
         }
