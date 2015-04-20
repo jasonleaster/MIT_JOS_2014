@@ -151,11 +151,16 @@ mem_init(void)
 	// to initialize all fields of each struct PageInfo to 0.
 	// Your code goes here:
 
+<<<<<<< HEAD
     pages = (struct PageInfo*)boot_alloc(ROUNDUP(npages * sizeof(struct PageInfo), PGSIZE));
 
 	//////////////////////////////////////////////////////////////////////
 	// Make 'envs' point to an array of size 'NENV' of 'struct Env'.
 	// LAB 3: Your code here.
+=======
+    pages = (struct PageInfo*)boot_alloc(npages * sizeof(struct PageInfo));
+	memset(pages, 0, npages * sizeof(struct PageInfo));
+>>>>>>> lab2
 
     envs = (struct Env*)boot_alloc(ROUNDUP(NENV * sizeof(struct Env), PGSIZE));
 	//////////////////////////////////////////////////////////////////////
@@ -317,12 +322,14 @@ page_init(void)
         }
         else if(i < npages_basemem)
         {
+            // used for base memory
             pages[i].pp_ref = 0;
             pages[i].pp_link = page_free_list;
             page_free_list = &pages[i];
         }
         else if(i <= (EXTPHYSMEM/PGSIZE) || i < (((uint32_t)boot_alloc(0) - KERNBASE) >> PGSHIFT))
         {
+            //used for IO memory
             pages[i].pp_ref++;
             pages[i].pp_link = NULL;
         }
