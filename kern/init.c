@@ -61,7 +61,6 @@ i386_init(void)
 	ENV_CREATE(TEST, ENV_TYPE_USER);
 #else
 	// Touch all you want.
-<<<<<<< HEAD
 	//ENV_CREATE(user_primes, ENV_TYPE_USER);
 
     /*
@@ -79,10 +78,6 @@ i386_init(void)
     ENV_CREATE(user_dumbfork, ENV_TYPE_USER);
     */
 
-    ENV_CREATE(user_faultread, ENV_TYPE_USER);
-=======
-	ENV_CREATE(user_divzero, ENV_TYPE_USER);
->>>>>>> lab3
 #endif // TEST*
 
 	// Schedule and run the first user environment!
