@@ -672,11 +672,11 @@ user_mem_check(struct Env *env, const void *va, size_t len, int perm)
         {
             goto err;
         }
-
         if((*pte & perm) != perm)
         {
             goto err;
         }
+                
     }
 
 	return 0;
