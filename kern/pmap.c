@@ -143,6 +143,10 @@ mem_init(void)
 	// Permissions: kernel R, user R
 	kern_pgdir[PDX(UVPT)] = PADDR(kern_pgdir) | PTE_U | PTE_P;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> lab3
 	//////////////////////////////////////////////////////////////////////
 	// Allocate an array of npages 'struct PageInfo's and store it in 'pages'.
 	// The kernel uses this array to keep track of physical pages: for
@@ -368,12 +372,14 @@ page_init(void)
         }
         else if(i < npages_basemem)
         {
+            // used for base memory
             pages[i].pp_ref = 0;
             pages[i].pp_link = page_free_list;
             page_free_list = &pages[i];
         }
         else if(i <= (EXTPHYSMEM/PGSIZE) || i < (((uint32_t)boot_alloc(0) - KERNBASE) >> PGSHIFT))
         {
+            //used for IO memory
             pages[i].pp_ref++;
             pages[i].pp_link = NULL;
         }
@@ -760,32 +766,41 @@ user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 	// LAB 3: Your code here.
 
     uintptr_t end_va = ROUNDUP((uint32_t)va + len, PGSIZE);
-    pte_t *pte;
+    pte_t *pte = NULL;
     perm |= PTE_P;
 
     for (user_mem_check_addr = (uintptr_t)va; 
                 user_mem_check_addr < end_va;
                 user_mem_check_addr += PGSIZE )
     {
-        if(user_mem_check_addr > ULIM)
-        {
-            return -E_FAULT;
-        }
-
-        if((env->env_pgdir[PDX(user_mem_check_addr)] & perm) != perm)
-        {
-            return -E_FAULT;
-        }
 
         pte = pgdir_walk(env->env_pgdir, (void *)user_mem_check_addr, 0);
 
+        if(user_mem_check_addr > ULIM)
+        {
+            goto err;
+        }
         if((*pte & perm) != perm)
         {
-            return -E_FAULT;
+            goto err;
         }
+                
     }
 
 	return 0;
+err:
+
+    
+    if (user_mem_check_addr == (uintptr_t) va)
+    {
+        user_mem_check_addr = (uintptr_t) va;
+    }
+    else
+    {
+        user_mem_check_addr = *pte;
+    }
+    
+    return -E_FAULT;
 }
 
 //
