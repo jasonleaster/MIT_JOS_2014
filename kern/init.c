@@ -65,18 +65,17 @@ i386_init(void)
 
     /*
      ** This is used for testing lab4 Part 1
-     
     ENV_CREATE(user_idle, ENV_TYPE_USER);
     ENV_CREATE(user_yield, ENV_TYPE_USER);
     ENV_CREATE(user_yield, ENV_TYPE_USER);
     ENV_CREATE(user_yield, ENV_TYPE_USER);
-    */
+    
+     */
 
     /*
      ** This is also for lab4 Part 1
-     
-    ENV_CREATE(user_dumbfork, ENV_TYPE_USER);
     */
+    ENV_CREATE(user_faultallocbad, ENV_TYPE_USER);
 
 #endif // TEST*
 

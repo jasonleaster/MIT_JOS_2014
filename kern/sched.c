@@ -34,6 +34,7 @@ sched_yield(void)
     uint32_t start = (idle != NULL) ? ENVX( idle->env_id) : 0;
     uint32_t i = start;
     bool first = true;
+
     for (; i != start || first; i = (i+1) % NENV, first = false)
     {
         if(envs[i].env_status == ENV_RUNNABLE)

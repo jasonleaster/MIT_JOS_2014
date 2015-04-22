@@ -363,6 +363,7 @@ page_init(void)
         }
         else if(i == MPENTRY_PADDR/PGSIZE)
         {
+            // for lab 4
             pages[i].pp_ref = 1;
             pages[i].pp_link = NULL;
         }
@@ -771,6 +772,11 @@ user_mem_check(struct Env *env, const void *va, size_t len, int perm)
     {
 
         pte = pgdir_walk(env->env_pgdir, (void *)user_mem_check_addr, 0);
+
+        if(!pte)
+        {
+            goto err;
+        }
 
         if(user_mem_check_addr > ULIM)
         {
