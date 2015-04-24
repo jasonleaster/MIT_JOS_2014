@@ -75,7 +75,7 @@ i386_init(void)
     /*
      ** This is also for lab4 Part 1
     */
-    ENV_CREATE(user_pingpongs, ENV_TYPE_USER);
+    ENV_CREATE(user_faultdie, ENV_TYPE_USER);
 
 #endif // TEST*
 
