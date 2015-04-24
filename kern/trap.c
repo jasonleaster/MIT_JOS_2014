@@ -124,9 +124,10 @@ trap_init_percpu(void)
     thiscpu->cpu_ts.ts_ss0  = GD_KD;
 
 	// Setup a TSS so that we get the right stack
-	// when we trap to the kernel.
-	//ts.ts_esp0 = KSTACKTOP;
-	//ts.ts_ss0 = GD_KD;
+	// when we trap to the kernel. 
+	//ts.ts_esp0 = KSTACKTOP; when we use multi-process,
+                              //we shouldn't use @ts
+	//ts.ts_ss0 = GD_KD; 
 
 	// Initialize the TSS slot of the gdt.
 	gdt[(GD_TSS0 >> 3) + cpunum()] = SEG16(STS_T32A, (uint32_t) (&thiscpu->cpu_ts), sizeof(struct Taskstate), 0);
@@ -226,7 +227,7 @@ trap_dispatch(struct Trapframe *tf)
 
     if(tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER)
     {
-     //   time_tick();
+        //time_tick();
         lapic_eoi();
         sched_yield();
         return;

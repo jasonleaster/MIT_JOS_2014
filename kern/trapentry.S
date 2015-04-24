@@ -586,7 +586,6 @@ _alltraps:
   # avoid page fault in kernel
   movl $0, %ebp
   call trap
-  # I don't think trap would return as of lab3.
 
   # Clean up the stack setup for previous trap() call and prepare for iret
   addl $4, %esp       # skip the argument we passed on stack to trap()

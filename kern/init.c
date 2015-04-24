@@ -63,8 +63,27 @@ i386_init(void)
 	ENV_CREATE(TEST, ENV_TYPE_USER);
 #else
 	// Touch all you want.
+<<<<<<< HEAD
 
 	ENV_CREATE(user_icode, ENV_TYPE_USER);
+=======
+	//ENV_CREATE(user_primes, ENV_TYPE_USER);
+
+    /*
+     ** This is used for testing lab4 Part 1
+    ENV_CREATE(user_idle, ENV_TYPE_USER);
+    ENV_CREATE(user_yield, ENV_TYPE_USER);
+    ENV_CREATE(user_yield, ENV_TYPE_USER);
+    ENV_CREATE(user_yield, ENV_TYPE_USER);
+     */
+    
+
+    /*
+     ** This is also for lab4 Part 1
+    */
+    ENV_CREATE(user_pingpongs, ENV_TYPE_USER);
+
+>>>>>>> lab4
 #endif // TEST*
 
 	// Should not be necessary - drains keyboard because interrupt has given up.

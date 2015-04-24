@@ -67,6 +67,10 @@ ipc_send(envid_t to_env, uint32_t val, void *pg, int perm)
         {
             panic("ipc_send: error %e", r);
         }
+        else
+        {
+            sys_yield();
+        }
     }while(r != 0);
 	//panic("ipc_send not implemented");
 }

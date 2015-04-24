@@ -602,5 +602,3 @@ env_run(struct Env *e)
     unlock_kernel();
     env_pop_tf(&(e->env_tf));
 }
-
-

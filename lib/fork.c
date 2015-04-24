@@ -31,7 +31,7 @@ pgfault(struct UTrapframe *utf)
         panic("pgfault: page fault was not caused by write; %x.\n", utf->utf_fault_va);
     }
 
-    if ((uvpt[PGNUM(addr)] & PTE_COW) == 0)
+    if ((uvpt[PGNUM(addr)] & PTE_COW) == 0) 
     {
         panic("pgfault: page fault on page which is not COW %x.\n", utf->utf_fault_va);
     }
@@ -86,52 +86,37 @@ duppage(envid_t envid, unsigned pn)
     pte_t pte = uvpt[pn];
     int perm;
 
-    if(pte & PTE_SHARE)
+    perm = PTE_U | PTE_P;
+    if(pte & PTE_W || pte & PTE_COW)
     {
-        if((r= sys_page_map(myenvid, 
-                            (void *) (pn * PGSIZE), 
-                            envid,
-                            (void *) (pn * PGSIZE),
-                            pte & PTE_SYSCALL))
-            < 0)
-        {
-            return r;
-        }
+        perm |= PTE_COW;
     }
-    else
-    {
-        perm = PTE_U | PTE_P;
-        if(pte & PTE_W || pte & PTE_COW)
-        {
-            perm |= PTE_COW;
-        }
 
-        // map to envid VA
-        if ((r = sys_page_map(myenvid,
-                            (void *)(pn * PGSIZE),
-                            envid,
+    // map to envid VA
+    if ((r = sys_page_map(myenvid,
+                        (void *)(pn * PGSIZE),
+                        envid,
+                        (void *) (pn * PGSIZE), 
+                        perm))
+                < 0)
+    {
+        return r;
+    }
+
+    // if COW remap to self
+    if(perm & PTE_COW)
+    {
+        if((r = sys_page_map(myenvid, 
+                            (void *)(pn * PGSIZE), 
+                            myenvid, 
                             (void *) (pn * PGSIZE), 
-                            perm))
+                            perm)) 
                     < 0)
         {
             return r;
         }
-
-        if(perm & PTE_COW)
-        {
-            if((r = sys_page_map(myenvid, 
-                                (void *)(pn * PGSIZE), 
-                                myenvid, 
-                                (void *) (pn * PGSIZE), 
-                                perm)) 
-                        < 0)
-            {
-                return r;
-            }
-        }
-
     }
-	//panic("duppage not implemented");
+
 	return 0;
 }
 
@@ -232,6 +217,94 @@ fork(void)
 int
 sfork(void)
 {
-	panic("sfork not implemented");
-	return -E_INVAL;
+	// LAB 4: Your code here.
+    extern void _pgfault_upcall(void);
+    envid_t myenvid = sys_getenvid();
+    envid_t envid;
+    uint32_t i, j, pn;
+    int perm;
+
+    // set page fault handler
+    set_pgfault_handler(pgfault);
+
+    // create a child
+    if((envid = sys_exofork()) < 0)
+    {
+        return -1;
+    }
+
+    if(envid == 0)
+    {
+        thisenv = &envs[ENVX(sys_getenvid())];
+        return envid;
+    }
+
+    // copy address space to child
+    for (i = PDX(UTEXT); i < PDX(UXSTACKTOP); i++)
+    {
+        if(uvpd[i] & PTE_P)
+        {
+            for (j = 0; j < NPTENTRIES; j++)
+            {
+                pn = PGNUM(PGADDR(i, j, 0));
+                if(pn == PGNUM(UXSTACKTOP - PGSIZE))
+                {
+                    break;
+                }
+
+                if(pn == PGNUM(USTACKTOP - PGSIZE))
+                {
+                     duppage(envid, pn); // cow for stack page
+                     continue;
+                }
+
+                // map same page to child env with same perms
+                if (uvpt[pn] & PTE_P)
+                {
+                    
+                    perm = uvpt[pn] & ~(uvpt[pn] & ~(PTE_P |PTE_U | PTE_W | PTE_AVAIL));
+                    if (sys_page_map(myenvid, (void *)(PGADDR(i, j, 0)),
+                                     envid,   (void *)(PGADDR(i, j, 0)), perm) < 0)
+                    {
+                        return -1;
+                    }
+
+                }
+            }
+        }
+    }
+
+    // allocate new exception stack for child
+    if(sys_page_alloc(envid, (void *)(UXSTACKTOP - PGSIZE), PTE_U | PTE_P | PTE_W) < 0)
+    {
+        return -1;
+    }
+
+    // map child uxstack to temp page
+    if(sys_page_map(envid, (void *)(UXSTACKTOP - PGSIZE), myenvid, PFTEMP, PTE_U | PTE_P | PTE_W) < 0)
+    {
+        return -1;
+    }
+
+    // copy own uxstack to temp page
+    memmove((void *)(UXSTACKTOP - PGSIZE), PFTEMP, PGSIZE);
+
+    if(sys_page_unmap(myenvid, PFTEMP) < 0)
+    {
+        return -1;
+    }
+
+    // set page fault handler in child
+    if(sys_env_set_pgfault_upcall(envid, _pgfault_upcall) < 0)
+    {
+        return -1;
+    }
+
+    // mark child env as RUNNABLE
+    if(sys_env_set_status(envid, ENV_RUNNABLE) < 0)
+    {
+        return -1;
+    }
+
+    return envid;
 }
