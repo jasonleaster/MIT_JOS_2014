@@ -72,13 +72,13 @@ alloc_block(void)
         for(j = 0; j < 32; j++)
         {
             match = 1 << j;
-        }
 
-        if (bitmap[i] & match)
-        {
-            bitmap[i] &= ~match;
-            flush_block(diskaddr((i * 32 | j)/BLKBITSIZE + 2));
-            return (i * 32) | j;
+            if (bitmap[i] & match)
+            {
+                bitmap[i] &= ~match;
+                flush_block(diskaddr((i * 32 | j)/BLKBITSIZE + 2));
+                return (i * 32) | j;
+            }
         }
     }
 
