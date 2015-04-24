@@ -477,7 +477,6 @@ sys_ipc_recv(void *dstva)
     curenv->env_tf.tf_regs.reg_eax = 0;
     curenv->env_status = ENV_NOT_RUNNABLE;
 
-    return 0;
 	//panic("sys_ipc_recv not implemented");
 	return 0;
 }

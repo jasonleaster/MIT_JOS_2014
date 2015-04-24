@@ -316,7 +316,7 @@ page_fault_handler(struct Trapframe *tf)
 
 	// LAB 3: Your code here.
 
-    if(tf->tf_ds == GD_KD)
+    if(tf->tf_cs == GD_KT)
     {
         panic("Page fault in kernel");
     }

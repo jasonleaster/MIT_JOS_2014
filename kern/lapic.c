@@ -72,6 +72,7 @@ lapic_init(void)
 	lapicw(TDCR, X1);
 	lapicw(TIMER, PERIODIC | (IRQ_OFFSET + IRQ_TIMER));
 	lapicw(TICR, 10000000); 
+	//lapicw(TICR, 0xFFFFFFF); 
 
 	// Leave LINT0 of the BSP enabled so that it can get
 	// interrupts from the 8259A chip.
