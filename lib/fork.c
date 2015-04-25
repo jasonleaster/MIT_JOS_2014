@@ -88,6 +88,7 @@ duppage(envid_t envid, unsigned pn)
 
     if(pte & PTE_SHARE)
     {
+        cprintf("INSHARING#####\n");
         if ((r = sys_page_map(myenvid, 
                             (void *) (pn * PGSIZE),
                             envid,
@@ -100,6 +101,7 @@ duppage(envid_t envid, unsigned pn)
     else
     {
         perm = PTE_U | PTE_P;
+ 
         if(pte & PTE_W || pte & PTE_COW)
         {
             perm |= PTE_COW;
@@ -227,6 +229,8 @@ fork(void)
     //	panic("fork not implemented");
 }
 
+int sfork(void){return 0;};
+/*
 // Challenge!
 int
 sfork(void)
@@ -322,3 +326,4 @@ sfork(void)
 
     return envid;
 }
+*/

@@ -321,7 +321,7 @@ copy_shared_pages(envid_t child)
                 {
                     if( (r = sys_page_map(0,
                                          (void *)(pn * PGSIZE),
-                                         0,
+                                         child,
                                          (void *)(pn * PGSIZE),
                                          uvpt[pn] & PTE_SYSCALL)) < 0)
                     {

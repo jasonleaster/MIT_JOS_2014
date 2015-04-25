@@ -240,7 +240,7 @@ sys_page_alloc(envid_t envid, void *va, int perm)
 
     if((perm & ~(PTE_U | PTE_P | PTE_W | PTE_AVAIL)) != 0)
     {
-        return -E_NO_MEM;
+        return -E_INVAL;
     }
 
     if ((pp = page_alloc(ALLOC_ZERO)) == NULL)
@@ -307,7 +307,7 @@ sys_page_map(envid_t srcenvid, void *srcva,
         return -E_INVAL;
     }
 
-    if((perm & PTE_U) == 0 ||(perm & PTE_P) == 0 ||(perm & ~PTE_SYSCALL) != 0)
+    if((perm & PTE_U) == 0 ||(perm & PTE_P) == 0 ||(perm & ~(PTE_U | PTE_P | PTE_W | PTE_AVAIL)) != 0)
     {
         cprintf("sys_page_map: invalid perm\n");
         return -E_INVAL;
@@ -466,7 +466,7 @@ sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
     }
     else
     {
-        e->env_ipc_perm;
+        e->env_ipc_perm = perm;
     }
 
     e->env_status = ENV_RUNNABLE;
@@ -505,6 +505,7 @@ sys_ipc_recv(void *dstva)
     curenv->env_tf.tf_regs.reg_eax = 0;
     curenv->env_status = ENV_NOT_RUNNABLE;
 
+    sys_yield();
 	//panic("sys_ipc_recv not implemented");
 	return 0;
 }

@@ -15,7 +15,7 @@ umain(int argc, char **argv)
 	if (argc != 0)
 		childofspawn();
 
-	if ((r = sys_page_alloc(0, VA, PTE_P|PTE_W|PTE_U|PTE_SHARE)) < 0)
+    if ((r = sys_page_alloc(0, VA, PTE_P|PTE_W|PTE_U|PTE_SHARE)) < 0)
 		panic("sys_page_alloc: %e", r);
 
 	// check fork
