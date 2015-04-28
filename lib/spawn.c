@@ -309,14 +309,13 @@ copy_shared_pages(envid_t child)
     {
         if(uvpd[i] & PTE_P)
         {
-            for(j = 0; j < NPTENTRIES; i++)
+            for(j = 0; j < NPTENTRIES; j++)
             {
                 pn = PGNUM(PGADDR(i, j, 0));
                 if(pn == PGNUM(UXSTACKTOP - PGSIZE))
                 {
-                    break;
+                    continue;
                 }
-
                 if((uvpt[pn] & PTE_P) && (uvpt[pn] & PTE_SHARE))
                 {
                     if( (r = sys_page_map(0,

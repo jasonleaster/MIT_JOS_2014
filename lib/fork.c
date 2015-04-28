@@ -84,11 +84,15 @@ duppage(envid_t envid, unsigned pn)
 
     envid_t myenvid = sys_getenvid();
     pte_t pte = uvpt[pn];
-    int perm;
+    int perm = 0;
+
+    if(!(pte & PTE_P))
+    {
+        return -E_INVAL;
+    }
 
     if(pte & PTE_SHARE)
     {
-        cprintf("INSHARING#####\n");
         if ((r = sys_page_map(myenvid, 
                             (void *) (pn * PGSIZE),
                             envid,
@@ -123,13 +127,18 @@ duppage(envid_t envid, unsigned pn)
         {
             if((r = sys_page_map(myenvid, 
                                 (void *)(pn * PGSIZE), 
-                                myenvid, 
+                                0, 
                                 (void *) (pn * PGSIZE), 
                                 perm)) 
                         < 0)
             {
                 return r;
             }
+        }
+
+        if((pte & PTE_W) && (PTE_COW & pte))
+        {
+            panic("duppage: should now set both PTE_W and PTE_COW\n");
         }
     }
 
@@ -185,6 +194,7 @@ fork(void)
             for (j = 0; j < NPTENTRIES; j++)
             {
                 pn = PGNUM(PGADDR(i, j, 0));
+                
                 if(pn == PGNUM(UXSTACKTOP - PGSIZE))
                 {
                     break;
@@ -198,12 +208,12 @@ fork(void)
         }
     }
 
-    if(sys_page_alloc(envid, (void *)(UXSTACKTOP - PGSIZE), PTE_U | PTE_P | PTE_W) < 0)
+    if(sys_page_alloc(envid, (void *)(UXSTACKTOP -  PGSIZE), PTE_U | PTE_P | PTE_W) < 0)
     {
         return -1;
     }
 
-    if(sys_page_map(envid, (void *)(UXSTACKTOP - PGSIZE), myenvid, PFTEMP, PTE_U | PTE_P | PTE_W) < 0)
+    if(sys_page_map(envid, (void *)(UXSTACKTOP -  PGSIZE), myenvid, PFTEMP, PTE_U | PTE_P | PTE_W) < 0)
     {
         return -1;
     }
