@@ -13,6 +13,7 @@ umain(int argc, char **argv)
 	int i;
 
 	// fork a child process
+    cprintf("address of i : %x\n", &i);
 	who = dumbfork();
 
 	// print a message and yield to the other a few times
@@ -45,6 +46,8 @@ dumbfork(void)
 	int r;
 	extern unsigned char end[];
 
+    cprintf("the address of end %x &end %x\n", end, &end);
+    cprintf("the adderss of thisenv %x \n", &thisenv);
 	// Allocate a new child environment.
 	// The kernel will initialize it with a copy of our register state,
 	// so that the child will appear to have called sys_exofork() too -
@@ -58,6 +61,7 @@ dumbfork(void)
 		// The copied value of the global variable 'thisenv'
 		// is no longer valid (it refers to the parent!).
 		// Fix it and return 0.
+        cprintf("##in child the address of @thisenv: %x\n", &thisenv);
 		thisenv = &envs[ENVX(sys_getenvid())];
 		return 0;
 	}
@@ -68,6 +72,8 @@ dumbfork(void)
 	for (addr = (uint8_t*) UTEXT; addr < end; addr += PGSIZE)
 		duppage(envid, addr);
 
+    cprintf("$$$$ address of @r %x\n", &r);
+    cprintf("$$$ address of @addr %x\n", &addr);
 	// Also copy the stack we are currently running on.
 	duppage(envid, ROUNDDOWN(&addr, PGSIZE));
 
